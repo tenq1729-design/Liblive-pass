@@ -22,15 +22,14 @@
       margin: 40px auto;
     }
     input {
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       padding: 10px;
-      width: 160px;
+      width: 220px;
       text-align: center;
       border-radius: 8px;
       border: 2px solid #555;
       background: #333;
       color: #fff;
-      letter-spacing: 4px;
     }
     button {
       font-size: 1.2rem;
@@ -43,14 +42,12 @@
       font-weight: bold;
       cursor: pointer;
     }
-    /* 認証完了後の再入場画面 */
     #pass-screen {
       display: none;
       max-width: 450px;
       margin: 0 auto;
       padding-bottom: 40px;
     }
-    /* 再入場OKの緑色カードヘッダー */
     .pass-header {
       background: #0dbd5f;
       border-radius: 20px;
@@ -81,7 +78,6 @@
       margin-top: 10px;
       font-family: monospace;
     }
-    /* パンフレット・マップ画像表示エリア */
     .pamphlet-box {
       background: #2a2a2a;
       border-radius: 16px;
@@ -110,7 +106,7 @@
     <h2 style="margin-top:0;">当日再入場パス</h2>
     <p style="color:#bbb; font-size:0.95rem;">※スタッフが確認の上、コードを入力します</p>
     <br>
-    <input type="password" id="passcode" placeholder="••••" maxlength="4" pattern="\d*">
+    <input type="password" id="passcode" placeholder="パスコードを入力" maxlength="12">
     <br>
     <button onclick="checkPass()">認証（スタッフ専用）</button>
     <p id="error" style="color:#ff5555; display:none; margin-top:15px; font-weight:bold;">パスコードが違います</p>
@@ -118,7 +114,6 @@
 
   <!-- 再入場許可画面 ＋ パンフレット画像 -->
   <div id="pass-screen">
-    <!-- 再入場判定用グリーンエリア -->
     <div class="pass-header">
       <h1 style="font-size:2.5rem; margin:0;">再入場 OK</h1>
       <div class="pulse-circle">PASS</div>
@@ -126,19 +121,18 @@
       <p style="margin-top:15px; font-size:0.95rem; opacity:0.9;">※再入場口でこの画面をお見せください</p>
     </div>
 
-    <!-- 会場パンフレット・マップ表示エリア -->
     <div class="pamphlet-box">
-      <h3>🗺️ 会場マップ・タイムスケジュール</h3>
-      <!-- ★ここにパンフレットの画像URLを設定します -->
-      <img src="pamphlet.jpg" alt="パンフレット案内" class="pamphlet-img">
+      <h3>🗺️ 会場案内・パンフレット</h3>
+      <img src="pamphlet1.jpg" alt="会場マップ" class="pamphlet-img">
+      <img src="pamphlet2.jpg" alt="タイムスケジュール" class="pamphlet-img">
     </div>
   </div>
 
   <script>
-    // ★1. 当日のスタッフ用パスコード（4桁）
-    const STAFF_PASS = "7772";
+    // ★ 英数字混合の新しいパスコード
+    const STAFF_PASS = "liblive7772";
 
-    // ★2. GASのウェブアプリURLを貼り付け
+    // ★ 取得したGASのURL
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyZjF785Obz6VVqHx3gWxa5SLNZT0TOBBVvUX9CfnCqhi6J4cw2IvmuOEVGfXNk7hZ8DQ/exec";
 
     if (localStorage.getItem("is_authenticated") === "true") {
