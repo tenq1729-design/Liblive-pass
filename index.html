@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>当日再入場パス</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      background: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 20px 15px;
+    }
+    .card {
+      background: #2a2a2a;
+      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      max-width: 400px;
+      margin: 40px auto;
+    }
+    input {
+      font-size: 1.8rem;
+      padding: 10px;
+      width: 160px;
+      text-align: center;
+      border-radius: 8px;
+      border: 2px solid #555;
+      background: #333;
+      color: #fff;
+      letter-spacing: 4px;
+    }
+    button {
+      font-size: 1.2rem;
+      padding: 12px 24px;
+      margin-top: 15px;
+      background: #00ffcc;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* 認証完了後の再入場画面 */
+    #pass-screen {
+      display: none;
+      max-width: 450px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+    /* 再入場OKの緑色カードヘッダー */
+    .pass-header {
+      background: #0dbd5f;
+      border-radius: 20px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 20px rgba(13, 189, 95, 0.4);
+      margin-bottom: 25px;
+    }
+    .pulse-circle {
+      width: 120px;
+      height: 120px;
+      margin: 20px auto;
+      background: #fff;
+      color: #0dbd5f;
+      border-radius: 50%;
+      line-height: 120px;
+      font-size: 2rem;
+      font-weight: bold;
+      animation: pulse 1s infinite alternate;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.92); opacity: 0.85; }
+      100% { transform: scale(1.08); opacity: 1; }
+    }
+    .clock {
+      font-size: 2.3rem;
+      font-weight: bold;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    /* パンフレット・マップ画像表示エリア */
+    .pamphlet-box {
+      background: #2a2a2a;
+      border-radius: 16px;
+      padding: 20px 15px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .pamphlet-box h3 {
+      margin-top: 0;
+      color: #00ffcc;
+      font-size: 1.2rem;
+    }
+    .pamphlet-img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      border: 1px solid #444;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- スタッフパスコード入力画面 -->
+  <div class="card" id="login-screen">
+    <h2 style="margin-top:0;">当日再入場パス</h2>
+    <p style="color:#bbb; font-size:0.95rem;">※スタッフが確認の上、コードを入力します</p>
+    <br>
+    <input type="password" id="passcode" placeholder="••••" maxlength="4" pattern="\d*">
+    <br>
+    <button onclick="checkPass()">認証（スタッフ専用）</button>
+    <p id="error" style="color:#ff5555; display:none; margin-top:15px; font-weight:bold;">パスコードが違います</p>
+  </div>
+
+  <!-- 再入場許可画面 ＋ パンフレット画像 -->
+  <div id="pass-screen">
+    <!-- 再入場判定用グリーンエリア -->
+    <div class="pass-header">
+      <h1 style="font-size:2.5rem; margin:0;">再入場 OK</h1>
+      <div class="pulse-circle">PASS</div>
+      <div class="clock" id="clock">00:00:00</div>
+      <p style="margin-top:15px; font-size:0.95rem; opacity:0.9;">※再入場口でこの画面をお見せください</p>
+    </div>
+
+    <!-- 会場パンフレット・マップ表示エリア -->
+    <div class="pamphlet-box">
+      <h3>🗺️ 会場マップ・タイムスケジュール</h3>
+      <!-- ★ここにパンフレットの画像URLを設定します -->
+      <img src="pamphlet.jpg" alt="パンフレット案内" class="pamphlet-img">
+    </div>
+  </div>
+
+  <script>
+    // ★1. 当日のスタッフ用パスコード（4桁）
+    const STAFF_PASS = "7772";
+
+    // ★2. GASのウェブアプリURLを貼り付け
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyZjF785Obz6VVqHx3gWxa5SLNZT0TOBBVvUX9CfnCqhi6J4cw2IvmuOEVGfXNk7hZ8DQ/exec";
+
+    if (localStorage.getItem("is_authenticated") === "true") {
+      showPassScreen();
+    }
+
+    function checkPass() {
+      const input = document.getElementById('passcode').value;
+      if (input === STAFF_PASS) {
+        if (localStorage.getItem("is_authenticated") !== "true") {
+          localStorage.setItem("is_authenticated", "true");
+          
+          if (GAS_URL && GAS_URL !== "ここにGASのURLを貼り付け") {
+            fetch(GAS_URL + "?action=count", { mode: 'no-cors' })
+              .catch(err => console.error("Count error:", err));
+          }
+        }
+        showPassScreen();
+      } else {
+        document.getElementById('error').style.display = 'block';
+      }
+    }
+
+    function showPassScreen() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('pass-screen').style.display = 'block';
+      setInterval(updateClock, 1000);
+      updateClock();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('ja-JP');
+    }
+  </script>
+</body>
+</html>
